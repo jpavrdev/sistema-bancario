@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "v3fjUl4MqdY=",
+  "success": true,
+  "projectFilePath": "/home/joao-pedro/Documents/sistema-bancario/BankingSystem.API/BankingSystem.API.csproj",
+  "expectedPackageFiles": [
+    "/home/joao-pedro/.nuget/packages/microsoft.aspnetcore.openapi/10.0.3/microsoft.aspnetcore.openapi.10.0.3.nupkg.sha512",
+    "/home/joao-pedro/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
