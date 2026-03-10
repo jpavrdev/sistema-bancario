@@ -1,1 +1,6 @@
 AGENTES.md
+bin/
+obj/
+*.user
+*.suo
+.vs/
