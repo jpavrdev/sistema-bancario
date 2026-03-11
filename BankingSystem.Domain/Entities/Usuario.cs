@@ -1,11 +1,11 @@
 using BankingSystem.Domain.Enums;
-
+using BankingSystem.Domain.ValueObjects;
 namespace BankingSystem.Domain.Entities;
 
-public class Usuario
+public sealed class Usuario
 {
     public Guid Id { get; private set; }
-    public string Cpf { get; private set; } = null!;
+    public Cpf Cpf { get; private set; } = null!;
     public string Nome { get; private set; } = null!;
     public string Sobrenome { get; private set; } = null!;
     public DateOnly DataNascimento { get; private set; }
@@ -26,8 +26,10 @@ public class Usuario
         Sexo? sexo = null
     )
     {
-        if (string.IsNullOrWhiteSpace(cpf) || cpf.Length != 11)
-            throw new ArgumentException("CPF inválido.");
+        var cpfResult = Cpf.Create(cpf);
+
+        if (!cpfResult.IsSuccess)
+            throw new ArgumentException(cpfResult.Error!.Description);
 
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome é obrigatório.");
@@ -35,17 +37,22 @@ public class Usuario
         if (string.IsNullOrWhiteSpace(sobrenome))
             throw new ArgumentException("Sobrenome é obrigatório.");
 
+        if (dataNascimento == default)
+            throw new ArgumentException("Data de nascimento é obrigatória.");
+
+        var dataAgora = DateTimeOffset.UtcNow;
+
         return new Usuario
         {
             Id = Guid.NewGuid(),
-            Cpf = cpf,
+            Cpf = cpfResult.Value!,
             Nome = nome,
             Sobrenome = sobrenome,
             DataNascimento = dataNascimento,
             EstadoCivil = estadoCivil,
             Sexo = sexo,
-            CriadoEm = DateTimeOffset.UtcNow,
-            AtualizadoEm = DateTimeOffset.UtcNow
+            CriadoEm = dataAgora,
+            AtualizadoEm = dataAgora
         };
     }
 }
