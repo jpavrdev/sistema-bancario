@@ -1,4 +1,5 @@
 using BankingSystem.Domain.Enums;
+using BankingSystem.Domain.Common;
 
 namespace BankingSystem.Domain.Entities;
 
@@ -16,7 +17,7 @@ public sealed class Contrato
 
     private Contrato() { }
 
-    public static Contrato Criar(
+    public static Result<Contrato> Criar(
         Guid usuarioId,
         string descricao,
         decimal valorTotalFinanciado,
@@ -26,19 +27,19 @@ public sealed class Contrato
     )
     {
         if (usuarioId == Guid.Empty)
-            throw new ArgumentException("UsuarioId é obrigatório.");
+            return new Error("ContratoInvalido", ErrorType.Validation, "UsuarioId é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(descricao))
-            throw new ArgumentException("Descrição é obrigatória.");
+            return new Error("ContratoInvalido", ErrorType.Validation, "Descrição é obrigatória.");
 
         if (valorTotalFinanciado <= 0)
-            throw new ArgumentException("Valor Total Financiado deve ser maior que zero.");
+            return new Error("ContratoInvalido", ErrorType.Validation, "Valor Total Financiado deve ser maior que zero.");
 
         if (taxaJurosMensal < 0)
-            throw new ArgumentException("Taxa de Juros não pode ser negativa.");
+            return new Error("ContratoInvalido", ErrorType.Validation, "Taxa de Juros Mensal não pode ser negativa.");
 
         if (taxaMultaAtraso < 0)
-            throw new ArgumentException("Taxa de multa não pode ser negativa.");
+            return new Error("ContratoInvalido", ErrorType.Validation, "Taxa de multa não pode ser negativa.");
 
         var dataAgora = DateTimeOffset.UtcNow;
 

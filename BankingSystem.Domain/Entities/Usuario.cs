@@ -1,5 +1,7 @@
 using BankingSystem.Domain.Enums;
 using BankingSystem.Domain.ValueObjects;
+using BankingSystem.Domain.Common;
+
 namespace BankingSystem.Domain.Entities;
 
 public sealed class Usuario
@@ -17,7 +19,7 @@ public sealed class Usuario
 
     private Usuario() { }
 
-    public static Usuario Criar(
+    public static Result<Usuario> Criar(
         string cpf,
         string nome,
         string sobrenome,
@@ -29,16 +31,16 @@ public sealed class Usuario
         var cpfResult = Cpf.Create(cpf);
 
         if (!cpfResult.IsSuccess)
-            throw new ArgumentException(cpfResult.Error!.Description);
+            return new Error("UsuarioInvalido", ErrorType.Validation, "CPF é inválido.");
 
         if (string.IsNullOrWhiteSpace(nome))
-            throw new ArgumentException("Nome é obrigatório.");
+            return new Error("UsuarioInvalido", ErrorType.Validation, "Nome é obrigatório.");
 
         if (string.IsNullOrWhiteSpace(sobrenome))
-            throw new ArgumentException("Sobrenome é obrigatório.");
+            return new Error("UsuarioInvalido", ErrorType.Validation, "Sobrenome é obrigatório.");
 
         if (dataNascimento == default)
-            throw new ArgumentException("Data de nascimento é obrigatória.");
+            return new Error("UsuarioInvalido", ErrorType.Validation, "Data de Nascimento é obrigatória.");
 
         var dataAgora = DateTimeOffset.UtcNow;
 

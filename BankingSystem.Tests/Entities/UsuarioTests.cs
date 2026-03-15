@@ -1,61 +1,45 @@
 using BankingSystem.Domain.Entities;
+using BankingSystem.Domain.Common;
 
 namespace BankingSystem.Tests.Entities;
 
 public class UsuarioTests
 {
     [Fact]
-    public void Criar_ComNomeVazio_DeveLancarArgumentException()
+    public void Criar_ComNomeVazio_DeveRetornarFalha()
     {
-        Assert.Throws<ArgumentException>(() =>
-            Usuario.Criar(
-                "52998224725",
-                "",
-                "Silva",
-                new DateOnly(1990, 1, 1)
-            )
-        );
+        var result = Usuario.Criar("52998224725", "", "Silva", new DateOnly(1990, 1, 1));
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal("Nome é obrigatório.", result.Error!.Description);
     }
 
     [Fact]
-    public void Criar_ComSobrenomeVazio_DeveLancarArgumentException()
+    public void Criar_ComSobrenomeVazio_DeveRetornarFalha()
     {
-        Assert.Throws<ArgumentException>(() =>
-            Usuario.Criar(
-                "52998224725",
-                "Carlos",
-                "",
-                new DateOnly(1990, 1, 1)
-            )
-        );
+        var result = Usuario.Criar("52998224725", "Carlos", "", new DateOnly(1990, 1, 1));
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal("Sobrenome é obrigatório.", result.Error!.Description);
     }
 
     [Fact]
-    public void Criar_ComDataNascimentoVazia_DeveLancarArgumentException()
+    public void Criar_ComDataNascimentoVazia_DeveRetornarFalha()
     {
-        Assert.Throws<ArgumentException>(() =>
-            Usuario.Criar(
-                "52998224725",
-                "Carlos",
-                "Silva",
-                default
-            )
-        );
+        var result = Usuario.Criar("52998224725", "Carlos", "Silva", default);
+        Assert.False(result.IsSuccess);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal("Data de Nascimento é obrigatória.", result.Error!.Description);
     }
 
     [Fact]
     public void Criar_ComDadosValidos_DeveRetornarUsuario()
     {
-        var usuario = Usuario.Criar(
-            "52998224725",
-            "Carlos",
-            "Silva",
-            new DateOnly(1990, 1, 1)
-        );
-        Assert.NotNull(usuario);
-        Assert.Equal("Carlos", usuario.Nome);
-        Assert.Equal("Silva", usuario.Sobrenome);
-        Assert.Equal(new DateOnly(1990, 1, 1), usuario.DataNascimento);
-        Assert.Equal("52998224725", usuario.Cpf.Value);
+        var result = Usuario.Criar("52998224725", "Carlos", "Silva", new DateOnly(1990, 1, 1));
+        Assert.True(result.IsSuccess);
+        Assert.Equal("Carlos", result.Value!.Nome);
+        Assert.Equal("Silva", result.Value!.Sobrenome);
+        Assert.Equal(new DateOnly(1990, 1, 1), result.Value!.DataNascimento);
+        Assert.Equal("52998224725", result.Value!.Cpf.Value);
     }
 }
