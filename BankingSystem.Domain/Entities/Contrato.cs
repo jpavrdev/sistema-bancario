@@ -5,6 +5,32 @@ namespace BankingSystem.Domain.Entities;
 
 public sealed class Contrato
 {
+    private readonly List<Parcela> _parcelas = [];
+    public IReadOnlyCollection<Parcela> Parcelas => _parcelas.AsReadOnly();
+
+    public Result AdicionarParcela(
+        int numeroParcela,
+        decimal valorPrincipal,
+        decimal saldoDevedor,
+        DateTimeOffset dataVencimento,
+        TimeProvider timeProvider
+    )
+    {
+        if (_parcelas.Any(p => p.NumeroParcela == numeroParcela))
+            return new Error("ParcelaDuplicada", ErrorType.Validation,
+                $"Parcela {numeroParcela} já existe neste contrato.");
+        var parcela = Parcela.Criar(Id, numeroParcela, valorPrincipal, saldoDevedor, timeProvider, dataVencimento);
+
+        if (!parcela.IsSuccess)
+            return parcela.Error!;
+
+        _parcelas.Add(parcela.Value!);
+
+        Versao++;
+
+        return Result.Success();
+    }
+
     public Guid Id { get; private set; }
     public Guid UsuarioId { get; private set; }
     public string Descricao { get; private set; } = null!;
@@ -12,6 +38,7 @@ public sealed class Contrato
     public decimal TaxaJurosMensal { get; private set; }
     public decimal TaxaMultaAtraso { get; private set; }
     public StatusContrato Status { get; private set; }
+    public int Versao { get; private set; }
     public DateTimeOffset DataAssinatura { get; private set; }
     public DateTimeOffset CriadoEm { get; private set; }
 
@@ -23,7 +50,7 @@ public sealed class Contrato
         decimal valorTotalFinanciado,
         decimal taxaJurosMensal,
         decimal taxaMultaAtraso,
-        StatusContrato status = StatusContrato.Ativo
+        TimeProvider timeProvider
     )
     {
         if (usuarioId == Guid.Empty)
@@ -41,7 +68,7 @@ public sealed class Contrato
         if (taxaMultaAtraso < 0)
             return new Error("ContratoInvalido", ErrorType.Validation, "Taxa de multa não pode ser negativa.");
 
-        var dataAgora = DateTimeOffset.UtcNow;
+        var dataAgora = timeProvider.GetUtcNow();
 
         return new Contrato
         {
@@ -51,9 +78,9 @@ public sealed class Contrato
             ValorTotalFinanciado = valorTotalFinanciado,
             TaxaJurosMensal = taxaJurosMensal,
             TaxaMultaAtraso = taxaMultaAtraso,
-            Status = status,
             DataAssinatura = dataAgora,
-            CriadoEm = dataAgora
+            CriadoEm = dataAgora,
+            Versao = 1,
         };
     }
 }

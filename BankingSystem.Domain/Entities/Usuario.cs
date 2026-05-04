@@ -24,6 +24,7 @@ public sealed class Usuario
         string nome,
         string sobrenome,
         DateOnly dataNascimento,
+        TimeProvider timeProvider,
         EstadoCivil? estadoCivil = null,
         Sexo? sexo = null
     )
@@ -42,7 +43,7 @@ public sealed class Usuario
         if (dataNascimento == default)
             return new Error("UsuarioInvalido", ErrorType.Validation, "Data de Nascimento é obrigatória.");
 
-        var dataAgora = DateTimeOffset.UtcNow;
+        var dataAgora = timeProvider.GetUtcNow();
 
         return new Usuario
         {

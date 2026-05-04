@@ -12,16 +12,16 @@ public sealed class Parcela
     public DateTimeOffset DataVencimento { get; private set; }
     public StatusParcela Status { get; private set; }
     public decimal SaldoDevedor { get; private set; }
-    public int Versao { get; private set; }
     public DateTimeOffset CriadoEm { get; private set; }
 
     private Parcela() {}
 
-    public static Result<Parcela> Criar(
+    internal static Result<Parcela> Criar(
         Guid contratoId,
         int numeroParcela,
         decimal valorPrincipal,
         decimal saldoDevedor,
+        TimeProvider timeProvider,
         DateTimeOffset dataVencimento,
         StatusParcela status = StatusParcela.Pendente
     ) {
@@ -34,7 +34,7 @@ public sealed class Parcela
         if (valorPrincipal <= 0)
             return new Error("ParcelaInvalida", ErrorType.Validation, "Valor Principal deve ser maior que zero.");
 
-        var dataAgora = DateTimeOffset.UtcNow;
+        var dataAgora = timeProvider.GetUtcNow();
 
         return new Parcela
         {
